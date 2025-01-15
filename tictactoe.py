@@ -1,4 +1,3 @@
-#make tic tac toe game gui
 from tkinter import *
 root = Tk()
 root.title("cookies vs cream")
@@ -28,8 +27,6 @@ def check_game_over():
         game_over = True
     if turns == 9 and winner == None:
         game_over = True
-
-#function to handle the button click event
 
 def button_click(row, col):
     global current_player
