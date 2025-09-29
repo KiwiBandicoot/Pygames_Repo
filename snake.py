@@ -24,7 +24,6 @@ textRect = text.get_rect()
 snake = [{'rect': pygame.Rect(300, 100, 20, 20), 'dir': 'up'},
             {'rect': pygame.Rect(300, 120, 20, 20), 'dir': 'up'},
             {'rect': pygame.Rect(300, 140, 20, 20), 'dir': 'up'}]
-
 food = {'rect': pygame.Rect(100, 100, 20, 20), 'color': GREEN}
 direction = 'right'
 changeDirection = direction

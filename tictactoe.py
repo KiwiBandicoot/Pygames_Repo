@@ -1,62 +1,70 @@
 from tkinter import *
-root = Tk()
-root.title("cookies vs cream")
-root.geometry("400x400") 
-board = [["" for i in range(3)] for j in range(3)]
-current_player = "cookies"
-winner = None
-game_over = False
-turns = 0
 
-def check_game_over():
-    global game_over
-    global winner
-    for i in range(3):
-        if board[i][0] == board[i][1] == board[i][2] and board[i][0] != "":
-            winner = board[i][0]
-            game_over = True
-    for i in range(3):
-        if board[0][i] == board[1][i] == board[2][i] and board[0][i] != "":
-            winner = board[0][i]
-            game_over = True
-    if board[0][0] == board[1][1] == board[2][2] and board[0][0] != "":
-        winner = board[0][0]
-        game_over = True
-    if board[0][2] == board[1][1] == board[2][0] and board[0][2] != "":
-        winner = board[0][2]
-        game_over = True
-    if turns == 9 and winner == None:
-        game_over = True
+root = Tk()
+root.title("X vs O")
+root.geometry("225x300")
+
+board = [["" for _ in range(3)] for _ in range(3)]
+current_player = "X"
+turns = 0
+game_over = False
+
+def check_winner():
+    lines = (
+        board +
+        [list(col) for col in zip(*board)] +
+        [[board[i][i] for i in range(3)], [board[i][2-i] for i in range(3)]]
+    )
+    for line in lines:
+        if line[0] and line.count(line[0]) == 3:
+            return line[0]
+    return None
 
 def button_click(row, col):
-    global current_player
-    global board
-    global turns
-    global game_over
-    if board[row][col] == "" and not game_over:
-        board[row][col] = current_player
-        button = Button(root, text=current_player, state=DISABLED)
-        button.grid(row=row, column=col, ipadx=40, ipady=40)
-        turns += 1
-        check_game_over()
-        if not game_over:
-            if current_player == "cookies":
-                current_player = "cream"
-            else:
-                current_player = "cookies"
-        if game_over:
-            if winner == None:
-                label.config(text="It's a tie!")
-            else:
-                label.config(text=winner + " wins!")
+    global current_player, turns, game_over
+
+    if board[row][col] or game_over:
+        label.config(text="Invalid move!" if not game_over else label.cget("text"))
+        return
+
+    board[row][col] = current_player
+    buttons[row][col].config(text=current_player, state=DISABLED)
+    turns += 1
+
+    winner = check_winner()
+    if winner:
+        label.config(text=f"{winner} wins!")
+        game_over = True
+    elif turns == 9:
+        label.config(text="It's a tie!")
+        game_over = True
     else:
-        label.config(text="Invalid move!")
-buttons = [[Button(root, text="", command=lambda row=i, col=j: button_click(row, col)) for j in range(3)] for i in range(3)]
+        current_player = "O" if current_player == "X" else "X"
+
+def restart_game():
+    global board, current_player, turns, game_over
+    board = [["" for _ in range(3)] for _ in range(3)]
+    current_player = "X"
+    turns = 0
+    game_over = False
+    label.config(text="")
+
+    for i in range(3):
+        for j in range(3):
+            buttons[i][j].config(text="", state=NORMAL, width=8, height=4)
+
+buttons = [[Button(root, text="", width=8, height=4,
+                   command=lambda r=i, c=j: button_click(r, c))
+            for j in range(3)] for i in range(3)]
 for i in range(3):
     for j in range(3):
-        buttons[i][j].grid(row=i, column=j, ipadx=40, ipady=40)
+        buttons[i][j].grid(row=i, column=j)
 
-label = Label(root, text="")
-label.grid(row=3, columnspan=3)
+label = Label(root, text="Tic Tac Toe", font=("Arial", 16))
+label = Label(root, text="X vs O", font=("Arial", 16))
+label.grid(row=3, columnspan=3, pady=10)
+
+restart_btn = Button(root, text="Restart", command=restart_game)
+restart_btn.grid(row=4, columnspan=3, pady=10)
 
 root.mainloop()
