@@ -59,7 +59,8 @@ def reset_game():
     score = 0
     fps = FPS_START
     game_over = False
-    return snake, direction, next_direction, food, score, fps, game_over
+    paused = False
+    return snake, direction, next_direction, food, score, fps, game_over, paused
 
 
 def main():
@@ -73,7 +74,7 @@ def main():
 
     clock = pygame.time.Clock()
 
-    snake, direction, next_direction, food, score, fps, game_over = reset_game()
+    snake, direction, next_direction, food, score, fps, game_over, paused = reset_game()
     high_score = 0
 
     while True:
@@ -88,7 +89,11 @@ def main():
                     sys.exit()
 
                 if game_over and event.key == pygame.K_SPACE:
-                    snake, direction, next_direction, food, score, fps, game_over = reset_game()
+                    snake, direction, next_direction, food, score, fps, game_over, paused = reset_game()
+                    continue
+
+                if not game_over and event.key == pygame.K_SPACE:
+                    paused = not paused
                     continue
 
                 if event.key in (pygame.K_UP, pygame.K_w):
@@ -104,7 +109,7 @@ def main():
                     if direction != LEFT:
                         next_direction = RIGHT
 
-        if not game_over:
+        if not game_over and not paused:
             direction = next_direction
             head_x, head_y = snake[0]
             dx, dy = direction
@@ -153,6 +158,15 @@ def main():
             screen.blit(game_over_text, game_over_rect)
             screen.blit(restart_text, restart_rect)
             screen.blit(quit_text, quit_rect)
+        elif paused:
+            paused_text = title_font.render("Paused", True, TEXT_COLOR)
+            resume_text = hint_font.render("Press SPACE to resume", True, TEXT_COLOR)
+
+            paused_rect = paused_text.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 15))
+            resume_rect = resume_text.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 + 20))
+
+            screen.blit(paused_text, paused_rect)
+            screen.blit(resume_text, resume_rect)
 
         pygame.display.flip()
         clock.tick(fps)
