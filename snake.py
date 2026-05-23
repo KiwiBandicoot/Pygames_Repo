@@ -18,6 +18,8 @@ SNAKE_COLOR = (25, 25, 25)
 FOOD_COLOR = (30, 170, 90)
 TEXT_COLOR = (20, 20, 20)
 GAME_OVER_COLOR = (190, 30, 45)
+PANEL_BG = (228, 234, 238)
+PANEL_BORDER = (150, 162, 170)
 
 
 UP = (0, -1)
@@ -43,6 +45,34 @@ def draw_grid_cell(surface, color, position):
 def draw_text(surface, text, font, color, topleft):
     text_surf = font.render(text, True, color)
     surface.blit(text_surf, topleft)
+
+
+def draw_controls_panel(surface, font):
+    lines = [
+        "Controls",
+        "Move: WASD / Arrows",
+        "Pause: SPACE",
+        "Quit: ESC",
+    ]
+
+    rendered_lines = [font.render(line, True, TEXT_COLOR) for line in lines]
+    max_width = max(line.get_width() for line in rendered_lines)
+    line_height = rendered_lines[0].get_height()
+    panel_padding_x = 12
+    panel_padding_y = 10
+    panel_width = max_width + panel_padding_x * 2
+    panel_height = (line_height * len(rendered_lines)) + panel_padding_y * 2 + 6
+
+    panel_x = WINDOW_WIDTH - panel_width - 10
+    panel_y = 8
+    panel_rect = pygame.Rect(panel_x, panel_y, panel_width, panel_height)
+    pygame.draw.rect(surface, PANEL_BG, panel_rect, border_radius=8)
+    pygame.draw.rect(surface, PANEL_BORDER, panel_rect, width=1, border_radius=8)
+
+    current_y = panel_y + panel_padding_y
+    for index, line in enumerate(rendered_lines):
+        surface.blit(line, (panel_x + panel_padding_x, current_y))
+        current_y += line_height + (4 if index == 0 else 2)
 
 
 def reset_game():
@@ -71,6 +101,7 @@ def main():
     score_font = pygame.font.SysFont(None, 30)
     title_font = pygame.font.SysFont(None, 50)
     hint_font = pygame.font.SysFont(None, 28)
+    controls_font = pygame.font.SysFont(None, 22)
 
     clock = pygame.time.Clock()
 
@@ -145,6 +176,7 @@ def main():
 
         draw_text(screen, f"Score: {score}", score_font, TEXT_COLOR, (10, 8))
         draw_text(screen, f"High Score: {high_score}", score_font, TEXT_COLOR, (10, 34))
+        draw_controls_panel(screen, controls_font)
 
         if game_over:
             game_over_text = title_font.render("Game Over", True, GAME_OVER_COLOR)
