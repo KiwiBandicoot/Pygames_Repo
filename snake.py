@@ -75,6 +75,32 @@ def draw_controls_panel(surface, font):
         current_y += line_height + (4 if index == 0 else 2)
 
 
+def draw_score_panel(surface, font, score, high_score):
+    lines = [
+        f"Score: {score}",
+        f"High Score: {high_score}",
+    ]
+
+    rendered_lines = [font.render(line, True, TEXT_COLOR) for line in lines]
+    max_width = max(line.get_width() for line in rendered_lines)
+    line_height = rendered_lines[0].get_height()
+    panel_padding_x = 12
+    panel_padding_y = 10
+    panel_width = max_width + panel_padding_x * 2
+    panel_height = (line_height * len(rendered_lines)) + panel_padding_y * 2 + 4
+
+    panel_x = 10
+    panel_y = 8
+    panel_rect = pygame.Rect(panel_x, panel_y, panel_width, panel_height)
+    pygame.draw.rect(surface, PANEL_BG, panel_rect, border_radius=8)
+    pygame.draw.rect(surface, PANEL_BORDER, panel_rect, width=1, border_radius=8)
+
+    current_y = panel_y + panel_padding_y
+    for line in rendered_lines:
+        surface.blit(line, (panel_x + panel_padding_x, current_y))
+        current_y += line_height + 2
+
+
 def reset_game():
     center_x = GRID_WIDTH // 2
     center_y = GRID_HEIGHT // 2
@@ -174,8 +200,7 @@ def main():
 
         draw_grid_cell(screen, FOOD_COLOR, food)
 
-        draw_text(screen, f"Score: {score}", score_font, TEXT_COLOR, (10, 8))
-        draw_text(screen, f"High Score: {high_score}", score_font, TEXT_COLOR, (10, 34))
+        draw_score_panel(screen, score_font, score, high_score)
         draw_controls_panel(screen, controls_font)
 
         if game_over:
