@@ -6,14 +6,20 @@ import pygame
 
 WINDOW_WIDTH = 640
 WINDOW_HEIGHT = 480
+HUD_HEIGHT = 120
 CELL_SIZE = 20
 GRID_WIDTH = WINDOW_WIDTH // CELL_SIZE
-GRID_HEIGHT = WINDOW_HEIGHT // CELL_SIZE
+PLAYFIELD_HEIGHT = WINDOW_HEIGHT - HUD_HEIGHT
+GRID_HEIGHT = PLAYFIELD_HEIGHT // CELL_SIZE
+PLAYFIELD_TOP = HUD_HEIGHT
 
 FPS_START = 8
 FPS_MAX = 24
 
 BACKGROUND = (245, 248, 250)
+HUD_BG = (245, 248, 250)
+PLAYFIELD_BG = (255, 255, 255)
+PLAYFIELD_BORDER = (160, 170, 180)
 SNAKE_COLOR = (25, 25, 25)
 FOOD_COLOR = (30, 170, 90)
 TEXT_COLOR = (20, 20, 20)
@@ -38,13 +44,8 @@ def random_food_position(snake):
 
 def draw_grid_cell(surface, color, position):
     x, y = position
-    rect = pygame.Rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE)
+    rect = pygame.Rect(x * CELL_SIZE, PLAYFIELD_TOP + (y * CELL_SIZE), CELL_SIZE, CELL_SIZE)
     pygame.draw.rect(surface, color, rect)
-
-
-def draw_text(surface, text, font, color, topleft):
-    text_surf = font.render(text, True, color)
-    surface.blit(text_surf, topleft)
 
 
 def draw_controls_panel(surface, font):
@@ -99,6 +100,12 @@ def draw_score_panel(surface, font, score, high_score):
     for line in rendered_lines:
         surface.blit(line, (panel_x + panel_padding_x, current_y))
         current_y += line_height + 2
+
+
+def draw_playfield(surface):
+    playfield_rect = pygame.Rect(0, PLAYFIELD_TOP, WINDOW_WIDTH, GRID_HEIGHT * CELL_SIZE)
+    pygame.draw.rect(surface, PLAYFIELD_BG, playfield_rect)
+    pygame.draw.rect(surface, PLAYFIELD_BORDER, playfield_rect, width=1)
 
 
 def reset_game():
@@ -193,7 +200,8 @@ def main():
                 else:
                     snake.pop()
 
-        screen.fill(BACKGROUND)
+        screen.fill(HUD_BG)
+        draw_playfield(screen)
 
         for segment in snake:
             draw_grid_cell(screen, SNAKE_COLOR, segment)
@@ -208,9 +216,10 @@ def main():
             restart_text = hint_font.render("Press SPACE to restart", True, TEXT_COLOR)
             quit_text = hint_font.render("Press ESC to quit", True, TEXT_COLOR)
 
-            game_over_rect = game_over_text.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 35))
-            restart_rect = restart_text.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 + 5))
-            quit_rect = quit_text.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 + 35))
+            center_y = PLAYFIELD_TOP + (GRID_HEIGHT * CELL_SIZE // 2)
+            game_over_rect = game_over_text.get_rect(center=(WINDOW_WIDTH // 2, center_y - 35))
+            restart_rect = restart_text.get_rect(center=(WINDOW_WIDTH // 2, center_y + 5))
+            quit_rect = quit_text.get_rect(center=(WINDOW_WIDTH // 2, center_y + 35))
 
             screen.blit(game_over_text, game_over_rect)
             screen.blit(restart_text, restart_rect)
@@ -219,8 +228,9 @@ def main():
             paused_text = title_font.render("Paused", True, TEXT_COLOR)
             resume_text = hint_font.render("Press SPACE to resume", True, TEXT_COLOR)
 
-            paused_rect = paused_text.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 15))
-            resume_rect = resume_text.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 + 20))
+            center_y = PLAYFIELD_TOP + (GRID_HEIGHT * CELL_SIZE // 2)
+            paused_rect = paused_text.get_rect(center=(WINDOW_WIDTH // 2, center_y - 15))
+            resume_rect = resume_text.get_rect(center=(WINDOW_WIDTH // 2, center_y + 20))
 
             screen.blit(paused_text, paused_rect)
             screen.blit(resume_text, resume_rect)
